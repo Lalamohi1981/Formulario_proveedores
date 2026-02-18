@@ -16,37 +16,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# =========================
-# ESTILOS CORPORATIVOS
-# =========================
-
-st.markdown(
-    f"""
-    <div style='text-align: center; margin-top: 10px; margin-bottom: 10px;'>
-
-        <h1 style='color:#252423; font-weight:700; margin-bottom: 8px;'>
-            Portal Oficial de Registro de Proveedores
-        </h1>
-
-        <p style='color:#605E5C; font-size:15px; max-width:850px; margin:auto; line-height:1.6;'>
-            Este portal ha sido dispuesto para la actualización y registro formal de proveedores 
-            de GreenMóvil S.A.S. La información suministrada será utilizada exclusivamente para 
-            fines administrativos, contractuales y de validación interna.
-            <br><br>
-            En caso de haber realizado un registro previo, podrá actualizar sus datos mediante 
-            un nuevo envío del formulario.
-        </p>
-
-        <p style='color:#605E5C; font-size:13px; margin-top:10px;'>
-            Fecha del sistema: {datetime.now().strftime("%d/%m/%Y")}
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            Versión del sistema: 1.0
-        </p>
-
-    </div>
-    """,
-    unsafe_allow_html=True
-)
 
 
 # =========================
