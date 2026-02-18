@@ -26,26 +26,42 @@ st.markdown("""
 /* Espaciado general */
 .block-container {
     padding-top: 2rem !important;
-    padding-bottom: 1rem !important;
+    padding-bottom: 1.5rem !important;
 }
 
 /* Título principal */
 h2 {
-    font-size: 30px !important;
+    font-size: 34px !important;
     font-weight: 700 !important;
-    margin-bottom: 10px !important;
+    margin-bottom: 12px !important;
 }
 
-/* Texto principal */
+/* Texto descriptivo */
 p {
-    font-size: 17px !important;
-    line-height: 1.4 !important;
-    margin-bottom: 6px !important;
+    font-size: 19px !important;
+    line-height: 1.5 !important;
+    margin-bottom: 8px !important;
 }
 
 /* Texto pequeño */
 small {
-    font-size: 14px !important;
+    font-size: 15px !important;
+}
+
+/* Labels de campos */
+label {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+}
+
+/* Inputs */
+input {
+    font-size: 17px !important;
+}
+
+/* Selectbox */
+div[data-baseweb="select"] {
+    font-size: 17px !important;
 }
 
 /* Botones */
@@ -53,25 +69,24 @@ small {
     background-color: #A1C42A;
     color: white;
     border-radius: 8px;
-    padding: 0.5em 1em;
-    border: none;
+    padding: 0.7em 1.6em;
+    font-size: 16px !important;
     font-weight: 600;
 }
 
 .stButton>button:hover {
     background-color: #00594E;
-    color: white;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
 # =========================
-# FRANJA SUPERIOR
+# FRANJA VERDE SUPERIOR (RESTAURADA)
 # =========================
 
 st.markdown(
-    "<div style='background-color:#A1C42A; height:6px; margin-bottom:20px;'></div>",
+    "<div style='background-color:#A1C42A; height:4px; margin-bottom:20px;'></div>",
     unsafe_allow_html=True
 )
 
