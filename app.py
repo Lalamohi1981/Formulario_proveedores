@@ -4,19 +4,20 @@ import os
 import pandas as pd
 import re
 from io import BytesIO
+from datetime import datetime
 
 # =========================
 # CONFIGURACIÓN DE PÁGINA
 # =========================
 
 st.set_page_config(
-    page_title="Formulario Proveedores - GreenMovil",
+    page_title="Portal Proveedores - GreenMovil",
     page_icon="🟢",
     layout="wide"
 )
 
 # =========================
-# ESTILOS PERSONALIZADOS
+# ESTILOS CORPORATIVOS
 # =========================
 
 st.markdown("""
@@ -57,7 +58,15 @@ h1, h2, h3 {
 """, unsafe_allow_html=True)
 
 # =========================
-# LOGO CENTRADO
+# FRANJA VERDE SUPERIOR
+# =========================
+
+st.markdown("""
+<div style='background-color:#A1C42A; height:6px; margin-bottom:20px;'></div>
+""", unsafe_allow_html=True)
+
+# =========================
+# LOGO
 # =========================
 
 col_logo1, col_logo2, col_logo3 = st.columns([1,2,1])
@@ -66,7 +75,38 @@ with col_logo2:
     st.image("logo.png", width=250)
 
 # =========================
-# CONEXIÓN BD
+# ENCABEZADO INSTITUCIONAL
+# =========================
+
+st.markdown(f"""
+<div style='text-align: center; margin-top: 10px; margin-bottom: 10px;'>
+
+    <h1 style='color:#252423; font-weight:700; margin-bottom: 8px;'>
+        Portal Oficial de Registro de Proveedores
+    </h1>
+
+    <p style='color:#605E5C; font-size:15px; max-width:850px; margin:auto; line-height:1.6;'>
+        Este portal ha sido dispuesto para la actualización y registro formal de proveedores 
+        de GreenMóvil S.A.S. La información suministrada será utilizada exclusivamente para 
+        fines administrativos, contractuales y de validación interna.
+        <br><br>
+        En caso de haber realizado un registro previo, podrá actualizar sus datos mediante 
+        un nuevo envío del formulario.
+    </p>
+
+    <p style='color:#605E5C; font-size:13px; margin-top:10px;'>
+        Fecha del sistema: {datetime.now().strftime("%d/%m/%Y")}
+        &nbsp;&nbsp;|&nbsp;&nbsp;
+        Versión del sistema: 1.0
+    </p>
+
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown("<hr style='border: 1px solid #C8C6C4;'>", unsafe_allow_html=True)
+
+# =========================
+# CONEXIÓN BASE DE DATOS
 # =========================
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -83,7 +123,7 @@ def validar_email(email):
     return re.match(patron, email)
 
 # =========================
-# TABS PRINCIPALES
+# TABS
 # =========================
 
 tab1, tab2 = st.tabs(["📝 Registro Proveedor", "🔐 Zona Compras"])
@@ -128,12 +168,10 @@ with tab1:
         with colb2:
             limpiar = st.button("Limpiar")
 
-        # BOTÓN LIMPIAR
         if limpiar:
             st.session_state.reset = True
             st.rerun()
 
-        # BOTÓN ENVIAR
         if enviar:
 
             if (
@@ -164,12 +202,6 @@ with tab1:
                     cursor = conn.cursor()
 
                     cursor.execute(
-                        "SELECT COUNT(*) FROM proveedores WHERE nit = %s",
-                        (nit,)
-                    )
-                    cantidad = cursor.fetchone()[0]
-
-                    cursor.execute(
                         """
                         INSERT INTO proveedores 
                         (nombre_empresa, nit, representante_legal, tipo_documento, numero_documento, correo)
@@ -182,11 +214,7 @@ with tab1:
                     cursor.close()
                     conn.close()
 
-                    if cantidad > 0:
-                        st.success("Información actualizada correctamente. Se creó nueva versión.")
-                    else:
-                        st.success("Proveedor registrado correctamente.")
-
+                    st.success("Registro realizado correctamente.")
                     st.session_state.reset = True
                     st.rerun()
 
@@ -225,7 +253,7 @@ with tab2:
 
                 conn.close()
 
-                st.success("Acceso concedido")
+                st.success("Acceso autorizado")
                 st.dataframe(df, use_container_width=True)
 
                 buffer = BytesIO()
@@ -233,7 +261,7 @@ with tab2:
                 buffer.seek(0)
 
                 st.download_button(
-                    label="📥 Descargar Excel",
+                    label="Descargar base en Excel",
                     data=buffer,
                     file_name="proveedores.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
