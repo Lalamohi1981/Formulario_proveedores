@@ -16,10 +16,34 @@ st.set_page_config(
     layout="wide"
 )
 
+# =========================
+# ESTILOS CORPORATIVOS
+# =========================
 
+st.markdown("""
+<style>
+body {
+    background-color: #F6F8FC;
+}
+
+.stButton>button {
+    background-color: #A1C42A;
+    color: white;
+    border-radius: 8px;
+    padding: 0.5em 1em;
+    border: none;
+    font-weight: 600;
+}
+
+.stButton>button:hover {
+    background-color: #00594E;
+    color: white;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # =========================
-# FRANJA VERDE SUPERIOR
+# FRANJA SUPERIOR
 # =========================
 
 st.markdown("""
@@ -27,47 +51,34 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =========================
-# LOGO
+# HEADER CON LOGO A LA DERECHA
 # =========================
 
-col_logo1, col_logo2, col_logo3 = st.columns([1,2,1])
+col_title, col_logo = st.columns([4,1])
 
-with col_logo2:
-    st.image("logo.png", width=250)
+with col_title:
+    st.markdown("## Portal Oficial de Registro de Proveedores")
 
-# =========================
-# ENCABEZADO INSTITUCIONAL
-# =========================
+    st.markdown("""
+    Este portal ha sido dispuesto para la actualización y registro formal de proveedores 
+    de **GreenMóvil S.A.S.**
 
-st.markdown(f"""
-<div style='text-align: center; margin-top: 10px; margin-bottom: 10px;'>
+    La información suministrada será utilizada exclusivamente para fines administrativos, 
+    contractuales y de validación interna.
 
-    <h1 style='color:#252423; font-weight:700; margin-bottom: 8px;'>
-        Portal Oficial de Registro de Proveedores
-    </h1>
+    En caso de haber realizado un registro previo, podrá actualizar sus datos mediante 
+    un nuevo envío del formulario.
+    """)
 
-    <p style='color:#605E5C; font-size:15px; max-width:850px; margin:auto; line-height:1.6;'>
-        Este portal ha sido dispuesto para la actualización y registro formal de proveedores 
-        de GreenMóvil S.A.S. La información suministrada será utilizada exclusivamente para 
-        fines administrativos, contractuales y de validación interna.
-        <br><br>
-        En caso de haber realizado un registro previo, podrá actualizar sus datos mediante 
-        un nuevo envío del formulario.
-    </p>
+    st.caption(f"Fecha del sistema: {datetime.now().strftime('%d/%m/%Y')} | Versión del sistema: 1.0")
 
-    <p style='color:#605E5C; font-size:13px; margin-top:10px;'>
-        Fecha del sistema: {datetime.now().strftime("%d/%m/%Y")}
-        &nbsp;&nbsp;|&nbsp;&nbsp;
-        Versión del sistema: 1.0
-    </p>
+with col_logo:
+    st.image("logo.png", use_container_width=True)
 
-</div>
-""", unsafe_allow_html=True)
-
-st.markdown("<hr style='border: 1px solid #C8C6C4;'>", unsafe_allow_html=True)
+st.divider()
 
 # =========================
-# CONEXIÓN BASE DE DATOS
+# CONEXIÓN BD
 # =========================
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -96,8 +107,6 @@ tab1, tab2 = st.tabs(["📝 Registro Proveedor", "🔐 Zona Compras"])
 with tab1:
     with st.container(border=True):
 
-        st.header("Formulario de Registro")
-
         if "reset" not in st.session_state:
             st.session_state.reset = False
 
@@ -124,10 +133,10 @@ with tab1:
         colb1, colb2 = st.columns(2)
 
         with colb1:
-            enviar = st.button("Enviar")
+            enviar = st.button("Registrar información")
 
         with colb2:
-            limpiar = st.button("Limpiar")
+            limpiar = st.button("Restablecer formulario")
 
         if limpiar:
             st.session_state.reset = True
@@ -188,8 +197,6 @@ with tab1:
 
 with tab2:
     with st.container(border=True):
-
-        st.header("Zona Interna - Compras")
 
         if "auth" not in st.session_state:
             st.session_state.auth = False
