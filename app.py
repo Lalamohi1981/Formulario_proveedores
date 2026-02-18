@@ -22,10 +22,33 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-body {
-    background-color: #F6F8FC;
+
+/* Espaciado general */
+.block-container {
+    padding-top: 2rem !important;
+    padding-bottom: 1rem !important;
 }
 
+/* Título principal */
+h2 {
+    font-size: 30px !important;
+    font-weight: 700 !important;
+    margin-bottom: 10px !important;
+}
+
+/* Texto principal */
+p {
+    font-size: 17px !important;
+    line-height: 1.4 !important;
+    margin-bottom: 6px !important;
+}
+
+/* Texto pequeño */
+small {
+    font-size: 14px !important;
+}
+
+/* Botones */
 .stButton>button {
     background-color: #A1C42A;
     color: white;
@@ -39,6 +62,7 @@ body {
     background-color: #00594E;
     color: white;
 }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -46,12 +70,13 @@ body {
 # FRANJA SUPERIOR
 # =========================
 
-st.markdown("""
-<div style='background-color:#A1C42A; height:6px; margin-bottom:20px;'></div>
-""", unsafe_allow_html=True)
+st.markdown(
+    "<div style='background-color:#A1C42A; height:6px; margin-bottom:20px;'></div>",
+    unsafe_allow_html=True
+)
 
 # =========================
-# HEADER CON LOGO A LA DERECHA
+# HEADER
 # =========================
 
 col_title, col_logo = st.columns([4,1])
@@ -60,17 +85,15 @@ with col_title:
     st.markdown("## Portal Oficial de Registro de Proveedores")
 
     st.markdown("""
-    Este portal ha sido dispuesto para la actualización y registro formal de proveedores 
-    de **GreenMóvil S.A.S.**
-
-    La información suministrada será utilizada exclusivamente para fines administrativos, 
-    contractuales y de validación interna.
-
-    En caso de haber realizado un registro previo, podrá actualizar sus datos mediante 
-    un nuevo envío del formulario.
+    Este portal ha sido dispuesto para la actualización y registro formal de proveedores de **GreenMóvil S.A.S.**  
+    La información suministrada será utilizada exclusivamente para fines administrativos, contractuales y de validación interna.  
+    En caso de haber realizado un registro previo, podrá actualizar sus datos mediante un nuevo envío del formulario.
     """)
 
-    st.caption(f"Fecha del sistema: {datetime.now().strftime('%d/%m/%Y')} | Versión del sistema: 1.0")
+    st.markdown(
+        f"<small>Fecha del sistema: {datetime.now().strftime('%d/%m/%Y')} | Versión del sistema: 1.0</small>",
+        unsafe_allow_html=True
+    )
 
 with col_logo:
     st.image("logo.png", use_container_width=True)
@@ -148,7 +171,6 @@ with tab1:
                 not nombre_empresa.strip()
                 or not nit.strip()
                 or not representante.strip()
-                or not tipo_documento.strip()
                 or not numero_documento.strip()
                 or not correo.strip()
             ):
