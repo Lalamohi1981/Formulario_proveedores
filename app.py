@@ -1,3 +1,27 @@
+import streamlit as st
+import psycopg2
+import os
+import pandas as pd
+import re
+from io import BytesIO
+
+# =========================
+# CONEXIÓN BASE DE DATOS
+# =========================
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+def conectar():
+    return psycopg2.connect(DATABASE_URL)
+
+# =========================
+# VALIDACIÓN EMAIL
+# =========================
+
+def validar_email(email):
+    patron = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+    return re.match(patron, email)
+
 # =========================
 # FORMULARIO PROVEEDORES
 # =========================
@@ -5,7 +29,7 @@
 st.title("Formulario Proveedores")
 st.write("Registro de proveedores")
 
-# Inicializar estado
+# Inicializar estado para limpieza
 if "reset" not in st.session_state:
     st.session_state.reset = False
 
@@ -32,14 +56,21 @@ with col1:
 with col2:
     limpiar = st.button("Limpiar")
 
-# 🔹 BOTÓN LIMPIAR
+# =========================
+# BOTÓN LIMPIAR
+# =========================
+
 if limpiar:
     st.session_state.reset = True
     st.rerun()
 
-# 🔹 BOTÓN ENVIAR
+# =========================
+# BOTÓN ENVIAR
+# =========================
+
 if enviar:
 
+    # 🔐 VALIDACIONES
     if (
         not nombre_empresa.strip()
         or not nit.strip()
@@ -68,6 +99,14 @@ if enviar:
             conn = conectar()
             cursor = conn.cursor()
 
+            # Contar registros previos del mismo NIT
+            cursor.execute(
+                "SELECT COUNT(*) FROM proveedores WHERE nit = %s",
+                (nit,)
+            )
+            cantidad = cursor.fetchone()[0]
+
+            # 🔥 Siempre INSERT (histórico)
             cursor.execute(
                 """
                 INSERT INTO proveedores 
@@ -81,11 +120,66 @@ if enviar:
             cursor.close()
             conn.close()
 
-            st.success("Proveedor registrado correctamente")
+            if cantidad > 0:
+                st.success("Información actualizada correctamente. Se creó una nueva versión.")
+            else:
+                st.success("Proveedor registrado correctamente.")
 
-            # 🔄 Limpiar automáticamente después de guardar
+            # 🔄 Limpieza automática
             st.session_state.reset = True
             st.rerun()
 
         except Exception as e:
             st.error(f"Error al guardar: {e}")
+
+# =========================
+# ZONA INTERNA COMPRAS
+# =========================
+
+st.markdown("---")
+st.subheader("🔐 Zona interna - Compras")
+
+if "auth" not in st.session_state:
+    st.session_state.auth = False
+
+password = st.text_input("Ingrese contraseña", type="password")
+
+if password == os.getenv("ADMIN_PASSWORD"):
+    st.session_state.auth = True
+
+if st.session_state.auth:
+    try:
+        conn = conectar()
+
+        # 🔥 SOLO ÚLTIMA VERSIÓN POR NIT
+        df = pd.read_sql(
+            """
+            SELECT DISTINCT ON (nit) *
+            FROM proveedores
+            ORDER BY nit, fecha_registro DESC
+            """,
+            conn
+        )
+
+        conn.close()
+
+        st.success("Acceso concedido")
+        st.dataframe(df)
+
+        # 📥 Descargar Excel
+        buffer = BytesIO()
+        df.to_excel(buffer, index=False)
+        buffer.seek(0)
+
+        st.download_button(
+            label="📥 Descargar Excel",
+            data=buffer,
+            file_name="proveedores.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
+    except Exception as e:
+        st.error(f"Error al consultar datos: {e}")
+
+elif password != "":
+    st.error("Contraseña incorrecta")
