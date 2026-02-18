@@ -1,18 +1,18 @@
 import streamlit as st
 import psycopg2
 import os
+import pandas as pd
 
-# 🔹 CONFIGURACIÓN SEGURA
-
+# 🔹 Conexión segura desde Secrets
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-
-
-# 🔹 FUNCIÓN PARA CONECTAR
 def conectar():
     return psycopg2.connect(DATABASE_URL)
 
-# 🔹 INTERFAZ
+# =========================
+# FORMULARIO PROVEEDORES
+# =========================
+
 st.title("Formulario Proveedores")
 st.write("Bienvenido al formulario de registro")
 
@@ -21,7 +21,6 @@ empresa = st.text_input("Empresa")
 correo = st.text_input("Correo electrónico")
 
 if st.button("Enviar"):
-
     try:
         conn = conectar()
         cursor = conn.cursor()
@@ -39,3 +38,37 @@ if st.button("Enviar"):
 
     except Exception as e:
         st.error(f"Error al guardar: {e}")
+
+# =========================
+# ZONA INTERNA COMPRAS
+# =========================
+
+st.markdown("---")
+st.subheader("🔐 Zona interna - Compras")
+
+password = st.text_input("Ingrese contraseña", type="password")
+
+if password == os.getenv("ADMIN_PASSWORD"):
+
+    try:
+        conn = conectar()
+        df = pd.read_sql("SELECT * FROM proveedores ORDER BY fecha_registro DESC", conn)
+        conn.close()
+
+        st.success("Acceso concedido")
+        st.dataframe(df)
+
+        csv = df.to_csv(index=False).encode("utf-8")
+
+        st.download_button(
+            label="📥 Descargar base de datos",
+            data=csv,
+            file_name="proveedores.csv",
+            mime="text/csv"
+        )
+
+    except Exception as e:
+        st.error(f"Error al consultar datos: {e}")
+
+elif password != "":
+    st.error("Contraseña incorrecta")
