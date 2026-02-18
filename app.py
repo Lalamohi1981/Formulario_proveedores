@@ -20,42 +20,34 @@ st.set_page_config(
 # ESTILOS CORPORATIVOS
 # =========================
 
-st.markdown("""
-<style>
-body {
-    background-color: #F6F8FC;
-}
+st.markdown(
+    f"""
+    <div style='text-align: center; margin-top: 10px; margin-bottom: 10px;'>
 
-h1, h2, h3 {
-    color: #252423;
-}
+        <h1 style='color:#252423; font-weight:700; margin-bottom: 8px;'>
+            Portal Oficial de Registro de Proveedores
+        </h1>
 
-.stTabs [role="tab"] {
-    font-size: 16px;
-    font-weight: 600;
-}
+        <p style='color:#605E5C; font-size:15px; max-width:850px; margin:auto; line-height:1.6;'>
+            Este portal ha sido dispuesto para la actualización y registro formal de proveedores 
+            de GreenMóvil S.A.S. La información suministrada será utilizada exclusivamente para 
+            fines administrativos, contractuales y de validación interna.
+            <br><br>
+            En caso de haber realizado un registro previo, podrá actualizar sus datos mediante 
+            un nuevo envío del formulario.
+        </p>
 
-.stButton>button {
-    background-color: #A1C42A;
-    color: white;
-    border-radius: 8px;
-    padding: 0.5em 1em;
-    border: none;
-    font-weight: 600;
-}
+        <p style='color:#605E5C; font-size:13px; margin-top:10px;'>
+            Fecha del sistema: {datetime.now().strftime("%d/%m/%Y")}
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+            Versión del sistema: 1.0
+        </p>
 
-.stButton>button:hover {
-    background-color: #00594E;
-    color: white;
-}
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
-[data-testid="stDataFrame"] {
-    border-radius: 10px;
-    background-color: white;
-    padding: 10px;
-}
-</style>
-""", unsafe_allow_html=True)
 
 # =========================
 # FRANJA VERDE SUPERIOR
