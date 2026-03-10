@@ -3,7 +3,6 @@ import psycopg2
 import os
 import pandas as pd
 import re
-from io import BytesIO
 from datetime import datetime
 
 # =========================
@@ -17,61 +16,34 @@ st.set_page_config(
 )
 
 # =========================
-# ESTILOS CORPORATIVOS
+# ESTILOS
 # =========================
 
 st.markdown("""
 <style>
 
-/* Espaciado general */
 .block-container {
     padding-top: 2rem !important;
-    padding-bottom: 1.5rem !important;
 }
 
-/* Título principal */
 h2 {
     font-size: 34px !important;
     font-weight: 700 !important;
-    margin-bottom: 12px !important;
 }
 
-/* Texto descriptivo */
-p {
-    font-size: 19px !important;
-    line-height: 1.5 !important;
-    margin-bottom: 8px !important;
-}
-
-/* Texto pequeño */
-small {
-    font-size: 15px !important;
-}
-
-/* Labels de campos */
 label {
     font-size: 18px !important;
-    font-weight: 600 !important;
 }
 
-/* Inputs */
 input {
     font-size: 17px !important;
 }
 
-/* Selectbox */
-div[data-baseweb="select"] {
-    font-size: 17px !important;
-}
-
-/* Botones */
 .stButton>button {
     background-color: #A1C42A;
     color: white;
     border-radius: 8px;
     padding: 0.7em 1.6em;
-    font-size: 16px !important;
-    font-weight: 600;
 }
 
 .stButton>button:hover {
@@ -82,31 +54,26 @@ div[data-baseweb="select"] {
 """, unsafe_allow_html=True)
 
 # =========================
-# FRANJA VERDE SUPERIOR (RESTAURADA)
+# HEADER
 # =========================
 
 st.markdown(
-    "<div style='background-color:#A1C42A; height:4px; margin-bottom:20px;'></div>",
-    unsafe_allow_html=True
+"<div style='background-color:#A1C42A; height:4px; margin-bottom:20px;'></div>",
+unsafe_allow_html=True
 )
-
-# =========================
-# HEADER
-# =========================
 
 col_title, col_logo = st.columns([4,1])
 
 with col_title:
+
     st.markdown("## Portal Oficial de Registro de Proveedores")
 
     st.markdown("""
-    Este portal ha sido dispuesto para la actualización y registro formal de proveedores de **GreenMóvil S.A.S.**  
-    La información suministrada será utilizada exclusivamente para fines administrativos, contractuales y de validación interna.  
-    En caso de haber realizado un registro previo, podrá actualizar sus datos mediante un nuevo envío del formulario.
+    Este portal ha sido dispuesto para el registro formal de proveedores de **GreenMóvil S.A.S.**
     """)
 
     st.markdown(
-        f"<small>Fecha del sistema: {datetime.now().strftime('%d/%m/%Y')} | Versión del sistema: 1.0</small>",
+        f"<small>Fecha del sistema: {datetime.now().strftime('%d/%m/%Y')}</small>",
         unsafe_allow_html=True
     )
 
@@ -125,6 +92,12 @@ def conectar():
     return psycopg2.connect(DATABASE_URL)
 
 # =========================
+# PASSWORD COMPRAS
+# =========================
+
+PASSWORD_COMPRAS = os.getenv("PASSWORD_COMPRAS","compras123")
+
+# =========================
 # VALIDACIÓN EMAIL
 # =========================
 
@@ -139,141 +112,251 @@ def validar_email(email):
 tab1, tab2 = st.tabs(["📝 Registro Proveedor", "🔐 Zona Compras"])
 
 # =====================================================
-# TAB 1 - FORMULARIO
+# TAB 1
 # =====================================================
 
 with tab1:
-    with st.container(border=True):
 
-        if "reset" not in st.session_state:
-            st.session_state.reset = False
+    if "accionistas" not in st.session_state:
+        st.session_state.accionistas = []
 
-        if st.session_state.reset:
-            st.session_state.nombre_empresa = ""
-            st.session_state.nit = ""
-            st.session_state.representante = ""
-            st.session_state.numero_documento = ""
-            st.session_state.correo = ""
-            st.session_state.reset = False
+    if "junta" not in st.session_state:
+        st.session_state.junta = []
 
-        col1, col2 = st.columns(2)
+    if "mensaje_ok" in st.session_state and st.session_state.mensaje_ok:
+        st.success("La información fue registrada correctamente.")
+        st.session_state.mensaje_ok = False
+
+    st.subheader("🏢 Información de la empresa")
+
+    col1,col2,col3 = st.columns([3,2,1])
+
+    with col1:
+        nombre_empresa = st.text_input("Nombre empresa", key="nombre_empresa")
+
+    with col2:
+        nit = st.text_input("NIT", key="nit")
+
+    with col3:
+        dv = st.text_input("DV", max_chars=1, key="dv")
+
+    correo = st.text_input("Correo electrónico", key="correo")
+
+    st.divider()
+
+    st.subheader("👤 Representante legal")
+
+    col1,col2 = st.columns(2)
+
+    with col1:
+        nombre = st.text_input("Nombre representante", key="nombre_rep")
+        tipo_documento = st.selectbox("Tipo documento", ["CC","CE","NIT","Pasaporte"])
+
+    with col2:
+        cargo = st.selectbox("Cargo", ["Representante Legal"])
+        numero_documento = st.text_input("Número documento", key="numero_documento")
+
+    # =========================
+    # ACCIONISTAS
+    # =========================
+
+    st.divider()
+    st.subheader("📊 Accionistas")
+
+    for i in range(len(st.session_state.accionistas)):
+
+        col1,col2,col3,col4 = st.columns([3,2,2,1])
 
         with col1:
-            nombre_empresa = st.text_input("Nombre de la empresa", key="nombre_empresa")
-            nit = st.text_input("NIT", key="nit")
-            representante = st.text_input("Representante legal", key="representante")
+            st.text_input("Nombre",key=f"acc_nombre_{i}")
 
         with col2:
-            tipo_documento = st.selectbox("Tipo documento", ["Cédula", "NIT", "Pasaporte"])
-            numero_documento = st.text_input("Número documento", key="numero_documento")
-            correo = st.text_input("Correo electrónico", key="correo")
+            st.selectbox("Tipo",["CC","CE","Pasaporte"],key=f"acc_tipo_{i}")
 
-        colb1, colb2 = st.columns(2)
+        with col3:
+            st.text_input("Documento",key=f"acc_doc_{i}")
 
-        with colb1:
-            enviar = st.button("Registrar información")
+        with col4:
+            if st.button("❌",key=f"del_acc_{i}"):
+                st.session_state.accionistas.pop(i)
+                st.rerun()
 
-        with colb2:
-            limpiar = st.button("Restablecer formulario")
+    if st.button("➕ Agregar accionista"):
+        st.session_state.accionistas.append({})
 
-        if limpiar:
-            st.session_state.reset = True
-            st.rerun()
+    # =========================
+    # JUNTA
+    # =========================
 
-        if enviar:
+    st.divider()
+    st.subheader("🏛 Junta directiva")
 
-            if (
-                not nombre_empresa.strip()
-                or not nit.strip()
-                or not representante.strip()
-                or not numero_documento.strip()
-                or not correo.strip()
-            ):
-                st.error("Todos los campos son obligatorios")
+    for i in range(len(st.session_state.junta)):
 
-            elif not nit.isdigit():
-                st.error("El NIT debe contener solo números")
+        col1,col2,col3,col4 = st.columns([3,2,2,1])
 
-            elif not numero_documento.isdigit():
-                st.error("El número de documento debe contener solo números")
+        with col1:
+            st.text_input("Nombre",key=f"jd_nombre_{i}")
 
-            elif not validar_email(correo):
-                st.error("El correo electrónico no es válido")
+        with col2:
+            st.selectbox("Tipo",["CC","CE","Pasaporte"],key=f"jd_tipo_{i}")
 
-            else:
-                nombre_empresa = nombre_empresa.strip().upper()
-                representante = representante.strip().upper()
+        with col3:
+            st.text_input("Documento",key=f"jd_doc_{i}")
 
-                try:
-                    conn = conectar()
-                    cursor = conn.cursor()
+        with col4:
+            if st.button("❌",key=f"del_jd_{i}"):
+                st.session_state.junta.pop(i)
+                st.rerun()
 
-                    cursor.execute(
-                        """
-                        INSERT INTO proveedores 
-                        (nombre_empresa, nit, representante_legal, tipo_documento, numero_documento, correo)
-                        VALUES (%s, %s, %s, %s, %s, %s)
-                        """,
-                        (nombre_empresa, nit, representante, tipo_documento, numero_documento, correo)
-                    )
+    if st.button("➕ Agregar miembro junta"):
+        st.session_state.junta.append({})
 
-                    conn.commit()
-                    cursor.close()
-                    conn.close()
+    # =========================
+    # BOTÓN REGISTRO
+    # =========================
 
-                    st.success("Registro realizado correctamente.")
-                    st.session_state.reset = True
-                    st.rerun()
+    if st.button("Registrar información"):
 
-                except Exception as e:
+        if not nombre_empresa.strip():
+            st.error("Debe ingresar empresa")
+
+        elif not nit.strip():
+            st.error("Debe ingresar NIT")
+
+        elif not nombre.strip():
+            st.error("Debe ingresar representante")
+
+        elif not validar_email(correo):
+            st.error("Correo inválido")
+
+        else:
+
+           
+            try:
+
+                conn = conectar()   
+                cursor = conn.cursor()
+
+                cursor.execute("""
+                INSERT INTO proveedores
+                (nombre_empresa,nit,dv,tipo_documento,numero_documento,nombre,cargo,correo)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+                """,(nombre_empresa,nit,dv,tipo_documento,numero_documento,nombre,cargo,correo))
+
+                for i in range(len(st.session_state.accionistas)):
+
+                    acc_nombre = st.session_state.get(f"acc_nombre_{i}")
+                    acc_tipo = st.session_state.get(f"acc_tipo_{i}")
+                    acc_doc = st.session_state.get(f"acc_doc_{i}")
+
+                    if acc_nombre and acc_doc:
+
+                        cursor.execute("""
+                        INSERT INTO proveedores
+                        (nombre_empresa,nit,dv,tipo_documento,numero_documento,nombre,cargo,correo)
+                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+                        """,(nombre_empresa,nit,dv,acc_tipo,acc_doc,acc_nombre.upper(),"ACCIONISTA",correo))
+
+                for i in range(len(st.session_state.junta)):
+
+                    jd_nombre = st.session_state.get(f"jd_nombre_{i}")
+                    jd_tipo = st.session_state.get(f"jd_tipo_{i}")
+                    jd_doc = st.session_state.get(f"jd_doc_{i}")
+
+                    if jd_nombre and jd_doc:
+
+                        cursor.execute("""
+                        INSERT INTO proveedores
+                        (nombre_empresa,nit,dv,tipo_documento,numero_documento,nombre,cargo,correo)
+                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+                        """,(nombre_empresa,nit,dv,jd_tipo,jd_doc,jd_nombre.upper(),"MIEMBRO JUNTA",correo))
+
+                conn.commit()
+                conn.close()
+
+                # limpiar listas
+                st.session_state.accionistas = []
+                st.session_state.junta = []
+
+                # limpiar campos formulario
+                for campo in [
+                    "nombre_empresa",
+                    "nit",
+                    "dv",
+                    "correo",
+                    "nombre_rep",
+                    "numero_documento"
+                ]:
+                    if campo in st.session_state:
+                        del st.session_state[campo]
+
+                st.session_state.mensaje_ok = True
+                st.rerun()
+
+            except Exception as e:
+
+                if "unique_persona_empresa" in str(e):
+                    st.warning("⚠️ Esta persona ya está registrada para esta empresa.")
+                else:
                     st.error(f"Error al guardar: {e}")
+
+     
 
 # =====================================================
 # TAB 2 - ZONA COMPRAS
 # =====================================================
 
 with tab2:
-    with st.container(border=True):
 
-        if "auth" not in st.session_state:
-            st.session_state.auth = False
+    st.subheader("Base de proveedores registrados")
 
-        password = st.text_input("Ingrese contraseña", type="password")
+    # 🔐 contraseña desde Secrets o fallback local
+    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "Compras2026")
 
-        if password == os.getenv("ADMIN_PASSWORD"):
-            st.session_state.auth = True
+    password = st.text_input("Ingrese contraseña", type="password")
 
-        if st.session_state.auth:
-            try:
-                conn = conectar()
+    if password == ADMIN_PASSWORD:
 
-                df = pd.read_sql(
-                    """
-                    SELECT DISTINCT ON (nit) *
-                    FROM proveedores
-                    ORDER BY nit, fecha_registro DESC
-                    """,
-                    conn
-                )
+        try:
 
-                conn.close()
+            conn = conectar()
 
-                st.success("Acceso autorizado")
-                st.dataframe(df, use_container_width=True)
+            df = pd.read_sql("""
+                SELECT
+                    id,
+                    nombre_empresa,
+                    nit,
+                    nombre,
+                    cargo,
+                    correo,
+                    fecha_registro AT TIME ZONE 'UTC' AT TIME ZONE 'America/Bogota' AS fecha_registro
+                FROM proveedores
+                ORDER BY fecha_registro DESC
+                """, conn)
 
-                buffer = BytesIO()
-                df.to_excel(buffer, index=False)
-                buffer.seek(0)
+            conn.close()
 
-                st.download_button(
-                    label="Descargar base en Excel",
-                    data=buffer,
-                    file_name="proveedores.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
+            st.dataframe(df, use_container_width=True)
 
-            except Exception as e:
-                st.error(f"Error al consultar datos: {e}")
+            st.caption(f"Total registros: {len(df)}")
 
-        elif password != "":
-            st.error("Contraseña incorrecta")
+            # -------------------------------------------------
+            # DESCARGA CSV
+            # -------------------------------------------------
+
+            csv = df.to_csv(index=False).encode("utf-8")
+
+            st.download_button(
+                label="📥 Descargar base de proveedores",
+                data=csv,
+                file_name="base_proveedores.csv",
+                mime="text/csv"
+            )
+
+        except Exception as e:
+
+            st.error(f"Error cargando base: {e}")
+
+    elif password != "":
+        st.error("Contraseña incorrecta")
